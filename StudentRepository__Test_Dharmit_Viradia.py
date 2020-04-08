@@ -52,7 +52,7 @@ class TestRepository(unittest.TestCase):
 
     def test_instructor_attributes(self) -> None:
         """ Testing for Instructor attributes """
-        expected = {('98765', 'Einstein, A', 'SFEN', 'SSW 567', 4),
+        expected = [('98765', 'Einstein, A', 'SFEN', 'SSW 567', 4),
                     ('98765', 'Einstein, A', 'SFEN', 'SSW 540', 3),
                     ('98764', 'Feynman, R', 'SFEN', 'SSW 564', 3),
                     ('98764', 'Feynman, R', 'SFEN', 'SSW 687', 3),
@@ -63,10 +63,10 @@ class TestRepository(unittest.TestCase):
                     ('98760', 'Darwin, C', 'SYEN', 'SYS 800', 1),
                     ('98760', 'Darwin, C', 'SYEN', 'SYS 750', 1),
                     ('98760', 'Darwin, C', 'SYEN', 'SYS 611', 2),
-                    ('98760', 'Darwin, C', 'SYEN', 'SYS 645', 1)}
+                    ('98760', 'Darwin, C', 'SYEN', 'SYS 645', 1)]
 
-        calculated = {tuple(detail) for instructor in self.repo._instructors.values(
-        ) for detail in instructor.info()}
+        calculated = [tuple(detail) for instructor in self.repo._instructors.values(
+        ) for detail in instructor.info()]
         self.assertEqual(expected, calculated)
 
 
