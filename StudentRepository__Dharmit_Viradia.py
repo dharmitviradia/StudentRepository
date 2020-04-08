@@ -184,7 +184,6 @@ class Instructor:
 
 
 def main():
-    Repository('HW09_Test')
     Repository('HW10_Test')
 
 
