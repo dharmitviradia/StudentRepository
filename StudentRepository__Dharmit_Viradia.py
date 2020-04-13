@@ -1,6 +1,7 @@
 """ Creating a Data Repository for University """
 
 import os
+import sqlite3
 from collections import defaultdict
 from prettytable import PrettyTable
 from typing import Dict, DefaultDict, Tuple, List, Iterator, Set
@@ -33,8 +34,10 @@ class Repository:
                 self.student_table()
                 print("\nInstructor Table ")
                 self.instructor_table()
+                print('\nStudent Grade Summary')
+                self.instructor_table_db()
 
-    def _get_majors(self, path: str):
+    def _get_majors(self, path: str) -> None:
         """Major details are read using file reading gen and added to dictionary"""
         for major, flag, course in file_reader(path, 3, sep='\t', header=True):
             if major not in self._majors:
@@ -43,7 +46,7 @@ class Repository:
 
     def _get_students(self, path: str) -> None:
         """ Student detail are read using file reading gen and added to dictionary """
-        for cwid, name, major in file_reader(path, 3, sep=';', header=True):
+        for cwid, name, major in file_reader(path, 3, sep='\t', header=True):
             if major not in self._majors:
                 print(f"Student {cwid} '{name}' has unknown major '{major}'")
             else:
@@ -51,12 +54,12 @@ class Repository:
 
     def _get_instructors(self, path: str) -> None:
         """ Instructor detail are read using file reading gen and added to dictionary """
-        for cwid, name, dept in file_reader(path, 3, sep='|', header=True):
+        for cwid, name, dept in file_reader(path, 3, sep='\t', header=True):
             self._instructors[cwid] = Instructor(cwid, name, dept)
 
     def _get_grades(self, path: str) -> None:
         """Grades are read using file reading gen and assigned to student and instructor """
-        for std_cwid, course, grade, instructor_cwid in file_reader(path, 4, sep='|', header=True):
+        for std_cwid, course, grade, instructor_cwid in file_reader(path, 4, sep='\t', header=True):
             if std_cwid in self._students:
                 self._students[std_cwid].add_course(course, grade)
             else:
@@ -77,12 +80,9 @@ class Repository:
     def student_table(self) -> None:
         """ Student table """
         table: PrettyTable = PrettyTable(field_names=Student.FIELD_NAMES)
-        x: List[str] = list()
         for student in self._students.values():
             table.add_row(student.info())
-            x.append(student.info())
         print(table)
-        # print(x)
 
     def instructor_table(self) -> None:
         """ Instructor table """
@@ -90,6 +90,20 @@ class Repository:
         for instructor in self._instructors.values():
             for row in instructor.info():
                 table.add_row(row)
+        print(table)
+
+    def instructor_table_db(self, db_path: str = "HW11_Test\810_startup.db") -> None:
+        """ Database table """
+
+        try:
+            db = sqlite3.connect(db_path)
+        except (FileNotFoundError, ValueError) as e:
+            print(e)
+
+        table: PrettyTable = PrettyTable(
+            field_names=['Name', 'CWID', 'Course', 'Grade', 'Instructor'])
+        for row in db.execute("select students.Name, students.CWID, grades.Course, grades.Grade, instructors.Name from students,grades,instructors where students.CWID=StudentCWID and InstructorCWID=instructors.CWID order by students.Name"):
+            table.add_row(row)
         print(table)
 
 
@@ -184,7 +198,7 @@ class Instructor:
 
 
 def main():
-    Repository('HW10_Test')
+    Repository('HW11_Test')
 
 
 if __name__ == '__main__':

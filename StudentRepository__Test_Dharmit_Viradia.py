@@ -2,6 +2,7 @@
 
 import unittest
 import os
+import sqlite3
 from HW10_Dharmit_Viradia import Repository, Student, Instructor, Major
 
 
@@ -67,6 +68,24 @@ class TestRepository(unittest.TestCase):
 
         calculated = [tuple(detail) for instructor in self.repo._instructors.values(
         ) for detail in instructor.info()]
+        self.assertEqual(expected, calculated)
+
+    def test_instructor_table_db(self) -> None:
+        """ Testing instructors table """
+        expected = [('Bezos, J', '10115', 'SSW 810', 'A', 'Rowland, J'),
+                    ('Bezos, J', '10115', 'CS 546', 'F', 'Hawking, S'),
+                    ('Gates, B', '11714', 'SSW 810', 'B-', 'Rowland, J'),
+                    ('Gates, B', '11714', 'CS 546', 'A', 'Cohen, R'),
+                    ('Gates, B', '11714', 'CS 570', 'A-', 'Hawking, S'),
+                    ('Jobs, S', '10103', 'SSW 810', 'A-', 'Rowland, J'),
+                    ('Jobs, S', '10103', 'CS 501', 'B', 'Hawking, S'),
+                    ('Musk, E', '10183', 'SSW 555', 'A', 'Rowland, J'),
+                    ('Musk, E', '10183', 'SSW 810', 'A', 'Rowland, J')]
+
+        calculated = []
+        db = sqlite3.connect("HW11_Test\810_startup.db")
+        for row in db.execute("select students.Name, students.CWID, grades.Course, grades.Grade, instructors.Name from students,grades,instructors where students.CWID=StudentCWID and InstructorCWID=instructors.CWID order by students.Name"):
+            calculated.append(row)
         self.assertEqual(expected, calculated)
 
 
